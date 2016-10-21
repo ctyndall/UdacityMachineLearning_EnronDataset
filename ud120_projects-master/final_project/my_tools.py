@@ -122,7 +122,7 @@ def get_emails(data_dict, direction='from'):
     matches = remove_mismatch(matches)
     return matches
 
-def add_word_ratios(data_dict, matches):
+def add_word_ratios(data_dict):
     ''' Creates new features with word count ratios for the given words.
     Updates the data_dict with these new features
 
@@ -130,6 +130,8 @@ def add_word_ratios(data_dict, matches):
     :param matches:
     :return: updated data_dict with word ratios
     '''
+
+    matches = get_emails(data_dict)
     results = {}
 
     for name, filename in matches:
@@ -165,6 +167,9 @@ def add_word_ratios(data_dict, matches):
         print word_counts
         results[name] = word_counts
 
+    with open('work_frequencies.pkl', "a") as output:
+        pickle.dump(results, output)
+
     for name in data_dict:
         blank = {}
         for word in word_counts:
@@ -172,6 +177,20 @@ def add_word_ratios(data_dict, matches):
         data_dict[name].update(blank)
     for name in results:
         data_dict[name].update(results[name])
+
+    return data_dict
+
+def load_add_word_frequencies(data_dict, FILENAME='word_frequencies.pkl'):
+    with open(FILENAME) as input:
+        word_counts = pickle.load(input)
+
+    for name in data_dict:
+        blank = {}
+        for word in word_counts[word_counts.keys()[0]]:
+            blank[word] = "NaN"
+        data_dict[name].update(blank)
+    for name in word_counts:
+        data_dict[name].update(word_counts[name])
 
     return data_dict
 
@@ -283,6 +302,12 @@ def make_scatter(data_dict, feature1, feature2, color_poi = True):
     data.plot(x=feature1, y=feature2, kind='scatter', c='poi')
     plt.show()
 
+def get_kbest(data_dict, features_list):
+    from sklearn.feature_selection import SelectKBest
+    data = featureFormat(data_dict, features_list)
+    kbest = SelectKBest(k=15)
+    kbest.fit(data)
+
 def dump_data_dict(data_dict):
     with open('my_dataset_test.pkl', "w") as dataset_outfile:
         pickle.dump(data_dict, dataset_outfile)
@@ -293,5 +318,5 @@ if __name__ == "__main__":
     data_dict = remove_outliers(data_dict)
     data_dict = add_scaled_financial(data_dict)
     data_dict = add_message_fractions(data_dict)
-    data_dict = add_word_ratios(data_dict, get_emails(data_dict))
+    data_dict = add_word_ratios(data_dict)
     dump_data_dict(data_dict)

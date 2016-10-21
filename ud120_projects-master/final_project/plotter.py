@@ -7,13 +7,13 @@ import matplotlib.pyplot as plt
 sys.path.append("../tools")
 from feature_format import featureFormat, targetFeatureSplit
 
-with open("my_dataset2.pkl", "r") as data_file:
+with open("my_dataset_test.pkl", "r") as data_file:
     data_dict = pickle.load(data_file)
 
 df = pd.DataFrame.from_dict(data_dict).T
 df = df.replace('NaN', np.nan)
 feature = 'bonus'
-features = ['poi', 'concern']
+features = ['enron', 'salary']
 #print df[['poi','bonus']]
 #print df['bonus'].asnumeric()
 print df[feature]

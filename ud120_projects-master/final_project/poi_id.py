@@ -22,8 +22,8 @@ features_list = ['poi',
  'bonus',
  'restricted_stock',
  'shared_receipt_with_poi',
- 'restricted_stock_deferred',
- #'total_stock_value',  #has strong effect
+ #'restricted_stock_deferred',
+ #'total_stock_value',
  'expenses',
  #'loan_advances',
  'from_messages',
@@ -65,7 +65,7 @@ my_dataset = my_tools.add_scaled_financial(my_dataset)
 
 ## The following were not used with the final classifier
 #my_dataset = my_tools.remove_rows_limited_features(my_dataset)
-#my_dataset = my_tools.add_word_ratios(my_dataset)
+#my_dataset = my_tools.load_add_word_frequencies(my_dataset)
 
 ### Task 4: Try a varity of classifiers
 ### Please name your classifier clf for easy export below.
@@ -81,19 +81,11 @@ from sklearn.linear_model import LogisticRegression
 
 #Initial test
 for clf in [DecisionTreeClassifier, GaussianNB, KNeighborsClassifier, LogisticRegression]:
-    tester.test_classifier(clf(), my_dataset, features_list)
+   tester.test_classifier(clf(), my_dataset, features_list)
 
 ### Task 5: Tune your classifier to achieve better than .3 precision and recall
-from sklearn.pipeline import Pipeline
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.decomposition import PCA
-n_comps = 11
-data = featureFormat(my_dataset, features_list, sort_keys = True)
-labels, features = targetFeatureSplit(data)
-
-clf = Pipeline(steps=[('scale', MinMaxScaler()),
-                      ('pca', PCA(copy=True, n_components=n_comps, whiten=True)),
-                      ('classifer', my_gridsearchCV.tune_parameters(labels, features, n_comps))])
+clf = my_gridsearchCV.tune_parameters(my_dataset, features_list)
+print clf
 
 ### using our testing script. Check the tester.py script in the final project
 ### folder for details on the evaluation method, especially the test_classifier
